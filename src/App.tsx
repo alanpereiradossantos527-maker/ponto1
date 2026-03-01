@@ -5,10 +5,11 @@ import { Auth } from './components/Auth';
 import { supabase } from './lib/supabase';
 import { EmployeeDashboard } from './views/EmployeeDashboard';
 import { ManagerDashboard } from './views/ManagerDashboard';
+import { Landing } from './views/Landing';
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<'login' | 'employee' | 'manager'>('login');
+  const [view, setView] = useState<'landing' | 'login-employee' | 'login-manager' | 'employee' | 'manager'>('landing');
 
   useEffect(() => {
     // Check for existing session
@@ -24,7 +25,7 @@ export default function App() {
         fetchProfile(session.user.id);
       } else {
         setUser(null);
-        setView('login');
+        setView('landing');
       }
     });
 
@@ -53,14 +54,23 @@ export default function App() {
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    setView('login');
+    setView('landing');
   };
 
-  if (view === 'login') {
-    return <Auth onAuthSuccess={(profile) => {
-      setUser(profile);
-      setView(profile.role === 'manager' ? 'manager' : 'employee');
-    }} />;
+  if (view === 'landing') {
+    return <Landing onSelectMode={(mode) => setView(`login-${mode}` as any)} />;
+  }
+
+  if (view === 'login-employee' || view === 'login-manager') {
+    const authMode = view === 'login-employee' ? 'employee' : 'manager';
+    return <Auth
+      mode={authMode}
+      onBack={() => setView('landing')}
+      onAuthSuccess={(profile) => {
+        setUser(profile);
+        setView(profile.role === 'manager' ? 'manager' : 'employee');
+      }}
+    />;
   }
 
   if (view === 'manager' && user) {
