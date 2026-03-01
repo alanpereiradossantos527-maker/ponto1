@@ -1,0 +1,9 @@
+{
+  "name": "Ponto Inteligente: Gestão & Diárias",
+  "description": "Controle de jornada com geofencing, validação por foto e cálculo automatizado de diárias.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
