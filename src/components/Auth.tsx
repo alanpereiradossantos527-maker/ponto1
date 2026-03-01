@@ -10,9 +10,8 @@ interface AuthProps {
 export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
     const [authMode, setAuthMode] = useState<'employee' | 'manager'>('employee');
     const [isLogin, setIsLogin] = useState(true);
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [password, setPassword] = useState('');
     const [profession, setProfession] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -23,9 +22,11 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
         setError(null);
 
         try {
+            const syntheticEmail = `${name.trim().toLowerCase().replace(/\s+/g, '.')}@ponto.com`;
+
             if (isLogin) {
                 const { data, error } = await supabase.auth.signInWithPassword({
-                    email,
+                    email: syntheticEmail,
                     password,
                 });
                 if (error) throw error;
@@ -48,7 +49,7 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
                 onAuthSuccess(profile);
             } else {
                 const { data, error } = await supabase.auth.signUp({
-                    email,
+                    email: syntheticEmail,
                     password,
                 });
                 if (error) throw error;
@@ -60,8 +61,8 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
                             {
                                 id: data.user.id,
                                 name,
-                                profession,
-                                role: 'employee',
+                                profession: authMode === 'employee' ? profession : 'Gestor',
+                                role: authMode,
                                 hourly_rate: 30,
                             },
                         ]);
@@ -138,44 +139,31 @@ export const Auth: React.FC<AuthProps> = ({ onAuthSuccess }) => {
                     )}
 
                     <form onSubmit={handleAuth} className="space-y-4">
-                        {!isLogin && (
-                            <>
-                                <div>
-                                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-1">Nome Completo</label>
-                                    <input
-                                        type="text"
-                                        value={name}
-                                        onChange={(e) => setName(e.target.value)}
-                                        required
-                                        className="w-full p-4 bg-zinc-50 rounded-xl border border-zinc-200 focus:border-emerald-500 outline-none transition-all"
-                                        placeholder="Seu nome"
-                                    />
-                                </div>
-                                <div>
-                                    <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-1">Profissão</label>
-                                    <input
-                                        type="text"
-                                        value={profession}
-                                        onChange={(e) => setProfession(e.target.value)}
-                                        required
-                                        className="w-full p-4 bg-zinc-50 rounded-xl border border-zinc-200 focus:border-emerald-500 outline-none transition-all"
-                                        placeholder="Sua profissão"
-                                    />
-                                </div>
-                            </>
-                        )}
-
                         <div>
-                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-1">Email</label>
+                            <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-1">Nome Completo</label>
                             <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
                                 required
                                 className="w-full p-4 bg-zinc-50 rounded-xl border border-zinc-200 focus:border-emerald-500 outline-none transition-all"
-                                placeholder="seu@email.com"
+                                placeholder="Seu nome"
                             />
                         </div>
+
+                        {!isLogin && authMode === 'employee' && (
+                            <div>
+                                <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-1">Profissão</label>
+                                <input
+                                    type="text"
+                                    value={profession}
+                                    onChange={(e) => setProfession(e.target.value)}
+                                    required
+                                    className="w-full p-4 bg-zinc-50 rounded-xl border border-zinc-200 focus:border-emerald-500 outline-none transition-all"
+                                    placeholder="Sua profissão"
+                                />
+                            </div>
+                        )}
 
                         <div>
                             <label className="text-xs font-bold text-zinc-400 uppercase tracking-widest block mb-1">Senha</label>

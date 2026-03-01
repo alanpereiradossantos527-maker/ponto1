@@ -24,9 +24,9 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
   const startCamera = async () => {
     setError(null);
     try {
-      const s = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: 'user' }, 
-        audio: false 
+      const s = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: false
       });
       setStream(s);
       if (videoRef.current) {
@@ -66,7 +66,7 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
         <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center bg-zinc-800">
           <AlertCircle className="w-12 h-12 text-red-500 mb-4" />
           <p className="text-white text-sm font-medium mb-6">{error}</p>
-          <button 
+          <button
             onClick={startCamera}
             className="px-6 py-2 bg-white text-zinc-900 rounded-xl font-bold text-sm hover:bg-zinc-100 transition-colors flex items-center gap-2"
           >
@@ -74,35 +74,38 @@ export const CameraCapture: React.FC<CameraCaptureProps> = ({ onCapture }) => {
             Tentar Novamente
           </button>
         </div>
-      ) : !captured ? (
-        <>
-          <video 
-            ref={videoRef} 
-            autoPlay 
-            playsInline 
-            className="w-full h-full object-cover scale-x-[-1]"
-          />
-          <button 
-            onClick={capture}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
-          >
-            <CameraIcon className="w-8 h-8 text-zinc-900" />
-          </button>
-        </>
       ) : (
         <>
-          <img src={captured} className="w-full h-full object-cover scale-x-[-1]" alt="Captured" />
-          <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
-            <div className="bg-emerald-500 text-white p-3 rounded-full shadow-lg">
-              <Check className="w-8 h-8" />
-            </div>
-          </div>
-          <button 
-            onClick={reset}
-            className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/30 transition-colors"
-          >
-            <RefreshCw className="w-6 h-6" />
-          </button>
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            className={`w-full h-full object-cover scale-x-[-1] ${captured ? 'hidden' : ''}`}
+          />
+          {!captured ? (
+            <button
+              onClick={capture}
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-lg active:scale-95 transition-transform"
+            >
+              <CameraIcon className="w-8 h-8 text-zinc-900" />
+            </button>
+          ) : (
+            <>
+              <img src={captured} className="w-full h-full object-cover scale-x-[-1] absolute inset-0" alt="Captured" />
+              <div className="absolute inset-0 bg-black/20 flex items-center justify-center pointer-events-none">
+                <div className="bg-emerald-500 text-white p-3 rounded-full shadow-lg">
+                  <Check className="w-8 h-8" />
+                </div>
+              </div>
+              <button
+                onClick={reset}
+                className="absolute bottom-4 right-4 bg-white/20 backdrop-blur-md text-white p-3 rounded-full hover:bg-white/30 transition-colors"
+                style={{ zIndex: 10 }}
+              >
+                <RefreshCw className="w-6 h-6" />
+              </button>
+            </>
+          )}
         </>
       )}
       <canvas ref={canvasRef} className="hidden" />

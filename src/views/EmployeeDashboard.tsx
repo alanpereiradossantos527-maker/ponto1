@@ -48,19 +48,6 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ user, onLo
     }, []);
 
     useEffect(() => {
-        let interval: any;
-        interval = setInterval(updateLocation, 5000);
-        updateLocation();
-        return () => clearInterval(interval);
-    }, [selectedWorkplace, testMode]);
-
-    const refreshStats = async () => {
-        const stats = await api.getUserStats(user.id);
-        setLogs(stats.logs);
-        setEarnings(stats.earnings);
-    };
-
-    const updateLocation = () => {
         if (testMode && selectedWorkplace) {
             const mockLoc = { lat: selectedWorkplace.latitude, lng: selectedWorkplace.longitude };
             setLocation(mockLoc);
@@ -68,7 +55,7 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ user, onLo
             return;
         }
 
-        navigator.geolocation.getCurrentPosition(
+        const watchId = navigator.geolocation.watchPosition(
             (pos) => {
                 const newLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
                 setLocation(newLoc);
@@ -82,8 +69,16 @@ export const EmployeeDashboard: React.FC<EmployeeDashboardProps> = ({ user, onLo
                     setError("Erro ao obter localização. Verifique as permissões ou use o Modo de Teste.");
                 }
             },
-            { enableHighAccuracy: true }
+            { enableHighAccuracy: true, maximumAge: 0 }
         );
+
+        return () => navigator.geolocation.clearWatch(watchId);
+    }, [selectedWorkplace, testMode]);
+
+    const refreshStats = async () => {
+        const stats = await api.getUserStats(user.id);
+        setLogs(stats.logs);
+        setEarnings(stats.earnings);
     };
 
     const handleRegisterPoint = async (type: 'in' | 'out') => {
